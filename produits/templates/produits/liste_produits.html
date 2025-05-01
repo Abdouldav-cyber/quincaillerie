@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block titre %}Liste des Produits{% endblock %}
+{% block contenu %}
+    <h2>Liste des Produits</h2>
+    <a href="{% url 'ajouter_produit' %}" class="btn btn-primary mb-3">Ajouter un Produit</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Prix de Vente</th>
+                <th>Code-barres</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produit in produits %}
+                <tr>
+                    <td>{{ produit.nom }}</td>
+                    <td>{{ produit.categorie.nom }}</td>
+                    <td>{{ produit.prix_vente }} FCFA</td>
+                    <td>{{ produit.code_barres }}</td>
+                    <td>
+                        <a href="{% url 'modifier_produit' produit.pk %}" class="btn btn-sm btn-warning">Modifier</a>
+                        <a href="{% url 'supprimer_produit' produit.pk %}" class="btn btn-sm btn-danger" onclick="return confirmDelete()">Supprimer</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">Aucun produit trouvé.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

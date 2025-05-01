@@ -1,0 +1,17 @@
+<!-- utilisateurs/templates/utilisateurs/login.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block titre %}Connexion{% endblock %}
+{% block contenu %}
+    <h2>Connexion</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Se connecter</button>
+    </form>
+    {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            Nom d'utilisateur ou mot de passe incorrect.
+        </div>
+    {% endif %}
+{% endblock %}

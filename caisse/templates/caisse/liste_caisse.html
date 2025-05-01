@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block titre %}Gestion de la Caisse{% endblock %}
+{% block contenu %}
+    <h2>Gestion de la Caisse</h2>
+    <a href="{% url 'ajouter_transaction_caisse' %}" class="btn btn-primary mb-3">Nouvelle Transaction</a>
+    <a href="{% url 'ajouter_cloture_caisse' %}" class="btn btn-secondary mb-3">Clôture de Caisse</a>
+    <h3>Transactions</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Montant</th>
+                <th>Date</th>
+                <th>Utilisateur</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.get_type_transaction_display }}</td>
+                    <td>{{ transaction.montant }} FCFA</td>
+                    <td>{{ transaction.date_creation|date:"d/m/Y H:i" }}</td>
+                    <td>{{ transaction.utilisateur.username }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">Aucune transaction trouvée.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Clôtures</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Solde Initial</th>
+                <th>Solde Final</th>
+                <th>Utilisateur</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cloture in clotures %}
+                <tr>
+                    <td>{{ cloture.date_cloture|date:"d/m/Y H:i" }}</td>
+                    <td>{{ cloture.solde_ouverture }} FCFA</td>
+                    <td>{{ cloture.solde_cloture }} FCFA</td>
+                    <td>{{ cloture.utilisateur.username }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">Aucune clôture trouvée.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

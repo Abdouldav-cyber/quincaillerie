@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block titre %}Liste des Utilisateurs{% endblock %}
+{% block contenu %}
+    <h2>Liste des Utilisateurs</h2>
+    <a href="{% url 'ajouter_utilisateur' %}" class="btn btn-primary mb-3">Ajouter un Utilisateur</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom d'utilisateur</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for utilisateur in utilisateurs %}
+                <tr>
+                    <td>{{ utilisateur.username }}</td>
+                    <td>{{ utilisateur.email }}</td>
+                    <td>{{ utilisateur.profilutilisateur.get_role_display }}</td>
+                    <td>
+                        <a href="{% url 'modifier_utilisateur' utilisateur.pk %}" class="btn btn-sm btn-warning">Modifier</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">Aucun utilisateur trouvé.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

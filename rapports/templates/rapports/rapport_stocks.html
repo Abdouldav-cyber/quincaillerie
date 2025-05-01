@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block titre %}Rapport des Stocks{% endblock %}
+{% block contenu %}
+    <h2>Rapport des Stocks</h2>
+    <form method="get" class="mb-3">
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Filtrer</button>
+    </form>
+    <div class="mb-3">
+        <a href="{% url 'exporter_stocks_csv' %}" class="btn btn-primary">Exporter en CSV</a>
+    </div>
+    <p><strong>Valeur totale du stock :</strong> {{ total_valeur }} FCFA</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Seuil Critique</th>
+                <th>Valeur</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock.produit.nom }}</td>
+                    <td>{{ stock.quantite }}</td>
+                    <td>{{ stock.seuil_critique }}</td>
+                    <td>{{ stock.quantite|floatformat:2|multiply:stock.produit.prix_vente }} FCFA</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">Aucun stock trouvé.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

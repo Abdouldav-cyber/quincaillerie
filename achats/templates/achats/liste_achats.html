@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block titre %}Liste des Achats{% endblock %}
+{% block contenu %}
+    <h2>Liste des Achats</h2>
+    <a href="{% url 'ajouter_achat' %}" class="btn btn-primary mb-3">Nouvelle Commande</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fournisseur</th>
+                <th>Date de Commande</th>
+                <th>Statut</th>
+                <th>Montant Payé</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commande in commandes %}
+                <tr>
+                    <td>{{ commande.fournisseur.nom }}</td>
+                    <td>{{ commande.date_commande|date:"d/m/Y H:i" }}</td>
+                    <td>{{ commande.get_statut_display }}</td>
+                    <td>{{ commande.montant_paye }} FCFA</td>
+                    <td>
+                        <a href="{% url 'modifier_achat' commande.pk %}" class="btn btn-sm btn-warning">Modifier</a>
+                        <a href="{% url 'ajouter_article_achat' commande.pk %}" class="btn btn-sm btn-info">Ajouter Articles</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">Aucune commande trouvée.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

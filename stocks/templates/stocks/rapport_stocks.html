@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titre %}Rapport des Stocks{% endblock %}
+
+{% block contenu %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Rapport des Stocks</h2>
+        <a href="{% url 'exporter_stocks_csv' %}" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-arrow-down me-2"></i>Exporter en CSV
+        </a>
+    </div>
+
+    <!-- Formulaire de filtre -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="needs-validation" novalidate id="filterForm">
+                <div class="row g-3">
+                    {% for field in form %}
+                        <div class="col-md-4 animate-field">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback">
+                                    {{ field.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100" id="filterButton">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
+                            <i class="bi bi-funnel me-2"></i>Filtrer
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Résumé du stock -->
+    <div class="card border-0 shadow-sm mb-4 text-center">
+        <div class="card-body">
+            <h5 class="card-title text-muted">Valeur Totale du Stock</h5>
+            <p class="display-6 text-primary">{{ total_valeur|floatformat:2 }} FCFA</p>
+        </div>
+    </div>
+
+    <!-- Tableau des stocks -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="stockSearch" placeholder="Rechercher par produit...">
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Produit</th>
+                            <th scope="col">Quantité</th>
+                            <th scope="col">Seuil Critique</th>
+                            <th scope="col">Valeur</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stocksTable">
+                        {% for stock in stocks %}
+                            <tr {% if stock.quantite <= stock.seuil_critique %}class="table-warning"{% endif %}>
+                                <td>{{ stock.produit.nom }}</td>
+                                <td>
+                                    <span class="{% if stock.quantite <= stock.seuil_critique %}text-danger fw-bold{% endif %}">
+                                        {{ stock.quantite }}
+                                    </span>
+                                </td>
+                                <td>{{ stock.seuil_critique }}</td>
+                                <td>{{ stock.quantite|floatformat:2|multiply:stock.produit.prix_vente }} FCFA</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Aucun stock trouvé.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Validation Bootstrap pour le formulaire
+    const form = document.getElementById('filterForm');
+    const filterButton = document.getElementById('filterButton');
+    const spinner = filterButton.querySelector('.spinner-border');
+
+    form.addEventListener('submit', (e) => {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            spinner.style.display = 'inline-block';
+            filterButton.disabled = true;
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Recherche dynamique dans le tableau
+    const searchInput = document.getElementById('stockSearch');
+    const tableRows = document.querySelectorAll('#stocksTable tr');
+
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        tableRows.forEach(row => {
+            const produit = row.cells[0].textContent.toLowerCase();
+            row.style.display = produit.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Animation des champs du formulaire
+    const fields = document.querySelectorAll('.animate-field');
+    fields.forEach((field, index) => {
+        setTimeout(() => {
+            field.style.opacity = '1';
+            field.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+
+<style>
+.animate-field {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(26, 60, 109, 0.05);
+}
+
+.input-group-text {
+    background-color: #1a3c6d;
+    color: #fff;
+    border-color: #1a3c6d;
+}
+
+.btn-primary, .btn-outline-primary {
+    background-color: #ff6f00;
+    border-color: #ff6f00;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover, .btn-outline-primary:hover {
+    background-color: #e65c00;
+    border-color: #e65c00;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    color: #ff6f00;
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+}
+
+.display-6 {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.table-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+</style>

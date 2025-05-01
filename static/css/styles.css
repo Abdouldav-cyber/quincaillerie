@@ -1,0 +1,124 @@
+/* static/css/styles.css */
+.navbar {
+    background-color: #1a3c6d;
+}
+
+.navbar-brand, .nav-link {
+    color: #fff !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ff6f00 !important;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #1a3c6d;
+}
+
+.form-control {
+    border-radius: 6px;
+}
+
+.form-control:focus {
+    border-color: #ff6f00;
+    box-shadow: 0 0 0 0.2rem rgba(255, 111, 0, 0.25);
+}
+
+.invalid-feedback {
+    display: none;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.form-text {
+    color: #6c757d;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.card.bg-light {
+    border-radius: 8px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(26, 60, 109, 0.05);
+}
+
+.input-group-text {
+    background-color: #1a3c6d;
+    color: #fff;
+    border-color: #1a3c6d;
+}
+
+.btn-primary, .btn-outline-primary {
+    background-color: #ff6f00;
+    border-color: #ff6f00;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover, .btn-outline-primary:hover {
+    background-color: #e65c00;
+    border-color: #e65c00;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    color: #ff6f00;
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+}
+
+.btn-danger {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.btn-sm i {
+    font-size: 1rem;
+}
+
+.modal-content {
+    border-radius: 10px;
+}
+
+.animate-field {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}
+
+.display-6 {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.table-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

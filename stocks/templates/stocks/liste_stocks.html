@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block titre %}Liste des Stocks{% endblock %}
+{% block contenu %}
+    <h2>Liste des Stocks</h2>
+    <a href="{% url 'ajouter_stock' %}" class="btn btn-primary mb-3">Ajouter un Stock</a>
+    <a href="{% url 'ajouter_mouvement_stock' %}" class="btn btn-secondary mb-3">Nouveau Mouvement</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Seuil Critique</th>
+                <th>Emplacement</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock.produit.nom }}</td>
+                    <td>{{ stock.quantite }}</td>
+                    <td>{{ stock.seuil_critique }}</td>
+                    <td>{{ stock.emplacement|default:"Non spécifié" }}</td>
+                    <td>
+                        {% if stock.est_sous_seuil %}
+                            <span class="badge bg-danger">Sous seuil</span>
+                        {% else %}
+                            <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'modifier_stock' stock.pk %}" class="btn btn-sm btn-warning">Modifier</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">Aucun stock trouvé.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
