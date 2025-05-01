@@ -15,10 +15,11 @@ class StockForm(forms.ModelForm):
 class MouvementStockForm(forms.ModelForm):
     class Meta:
         model = MouvementStock
-        fields = ['stock', 'type_mouvement', 'quantite', 'description']
+        fields = ['produit', 'quantite', 'type_mouvement', 'description', 'raison']
         widgets = {
-            'stock': forms.Select(attrs={'class': 'form-control'}),
-            'type_mouvement': forms.Select(attrs={'class': 'form-control'}),
+            'produit': forms.Select(attrs={'class': 'form-control'}),
             'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
+            'type_mouvement': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'raison': forms.TextInput(attrs={'class': 'form-control'}),
         }

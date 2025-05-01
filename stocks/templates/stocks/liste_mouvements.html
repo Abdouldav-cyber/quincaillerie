@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titre %}Liste des Mouvements de Stock{% endblock %}
+
+{% block contenu %}
+<div class="fade-in">
+    <h2 class="mb-4">Mouvements de Stock</h2>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Unité</th>
+                            <th>Type</th>
+                            <th>Quantité</th>
+                            <th>Date</th>
+                            <th>Raison</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mouvement in mouvements %}
+                            <tr>
+                                <td>{{ mouvement.produit.nom }}</td>
+                                <td>{{ mouvement.produit.get_unite_display }}</td>
+                                <td>{{ mouvement.get_type_mouvement_display }}</td>
+                                <td>{{ mouvement.quantite }}</td>
+                                <td>{{ mouvement.date_mouvement|date:"d/m/Y H:i" }}</td>
+                                <td>{{ mouvement.raison|default:"-" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Aucun mouvement trouvé.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 10px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(26, 60, 109, 0.05);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
