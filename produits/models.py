@@ -14,7 +14,7 @@ class Categorie(models.Model):
 class Produit(models.Model):
     UNITE_CHOIX = (
         ('piece', 'Pièce'),
-        ('boite', 'Boîte'),
+        ('metre', 'Mètre'),
         ('kg', 'Kilogramme'),
         ('litre', 'Litre'),
     )

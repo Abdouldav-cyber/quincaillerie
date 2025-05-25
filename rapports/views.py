@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .forms import RapportStocksForm, RapportVentesForm, RapportFinancierForm
-from .models import Stock, Vente
-from django.db.models import Sum, F
 from django.http import HttpResponse
+from django.db.models import Sum, F
 import csv
+from .models import Stock, Vente
+from .forms import RapportStocksForm, RapportVentesForm, RapportFinancierForm
 
 @login_required
 def rapport_stocks(request):
@@ -18,7 +18,7 @@ def rapport_stocks(request):
         total=Sum(F('quantite') * F('produit__prix_vente'))
     )['total'] or 0
 
-    return render(request, 'rapport_stocks.html', {
+    return render(request, 'rapports/rapport_stocks.html', {
         'form': form,
         'stocks': stocks,
         'total_valeur': total_valeur,
@@ -62,7 +62,7 @@ def rapport_ventes(request):
         total=Sum(F('quantite') * F('prix_unitaire'))
     )['total'] or 0
 
-    return render(request, 'rapport_ventes.html', {
+    return render(request, 'rapports/rapport_ventes.html', {
         'form': form,
         'ventes': ventes,
         'total_ventes': total_ventes,
@@ -106,13 +106,10 @@ def rapport_financier(request):
     total_ventes = ventes.aggregate(
         total=Sum(F('quantite') * F('prix_unitaire'))
     )['total'] or 0
-
-    # Placeholder for expenses or purchases (update if models exist)
-    total_depenses = 0  # Replace with actual logic if Depense or Achat model exists
-
+    total_depenses = 0  # À remplacer si un modèle Depense existe
     benefice = total_ventes - total_depenses
 
-    return render(request, 'rapport_financier.html', {
+    return render(request, 'rapports/rapport_financier.html', {
         'form': form,
         'ventes': ventes,
         'total_ventes': total_ventes,
@@ -145,11 +142,10 @@ def exporter_financier_csv(request):
             vente.quantite * vente.prix_unitaire
         ])
 
-    # Add summary row
     total_ventes = ventes.aggregate(
         total=Sum(F('quantite') * F('prix_unitaire'))
     )['total'] or 0
-    total_depenses = 0  # Replace with actual logic
+    total_depenses = 0  # À remplacer si un modèle Depense existe
     benefice = total_ventes - total_depenses
     writer.writerow(['', '', '', '', '', '', 'Total Ventes', total_ventes])
     writer.writerow(['', '', '', '', '', '', 'Total Dépenses', total_depenses])

@@ -1,70 +1,59 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import CommandeAchat, ArticleAchat
-from .forms import CommandeAchatForm, ArticleAchatForm
-from stocks.models import Stock, MouvementStock
-
-from django.forms import inlineformset_factory
-from .forms import ArticleAchatForm
-
-@login_required
-def ajouter_article_achat(request, commande_pk):
-    commande = get_object_or_404(CommandeAchat, pk=commande_pk)
-    ArticleAchatFormSet = inlineformset_factory(CommandeAchat, ArticleAchat, form=ArticleAchatForm, extra=1)
-    
-    if request.method == 'POST':
-        formset = ArticleAchatFormSet(request.POST, instance=commande)
-        if formset.is_valid():
-            formset.save()
-            messages.success(request, 'Articles ajoutés avec succès.')
-            return redirect('liste_achats')
-    else:
-        formset = ArticleAchatFormSet(instance=commande)
-    
-    return render(request, 'achats/formulaire_article_achat.html', {
-        'formset': formset,
-        'commande': commande,
-        'titre': f'Ajouter des Articles à la Commande {commande.id}'
-    })
+from .forms import AchatForm
+from .models import Achat
+from rapports.models import Stock
+from stocks.models import MouvementStock
 
 @login_required
 def liste_achats(request):
-    commandes = CommandeAchat.objects.all()
-    return render(request, 'achats/liste_achats.html', {'commandes': commandes})
+    achats = Achat.objects.all()
+    return render(request, 'achats/liste_achats.html', {'achats': achats})
 
 @login_required
 def ajouter_achat(request):
     if request.method == 'POST':
-        form = CommandeAchatForm(request.POST)
+        form = AchatForm(request.POST)
         if form.is_valid():
-            commande = form.save()
-            messages.success(request, 'Commande ajoutée avec succès.')
+            achat = form.save()
+            stock, created = Stock.objects.get_or_create(
+                produit=achat.produit,
+                defaults={'quantite': 0, 'seuil_critique': 10, 'emplacement': 'Entrepôt Principal'}
+            )
+            stock.quantite += achat.quantite
+            stock.save()
+            MouvementStock.objects.create(
+                produit=achat.produit,
+                quantite=achat.quantite,
+                type_mouvement='entree',
+                description=f"Achat {achat.id}"
+            )
             return redirect('liste_achats')
     else:
-        form = CommandeAchatForm()
-    return render(request, 'achats/formulaire_achat.html', {'form': form, 'titre': 'Ajouter une Commande'})
+        form = AchatForm()
+    return render(request, 'achats/ajouter_achat.html', {'form': form})
 
 @login_required
 def modifier_achat(request, pk):
-    commande = get_object_or_404(CommandeAchat, pk=pk)
+    achat = Achat.objects.get(pk=pk)
     if request.method == 'POST':
-        form = CommandeAchatForm(request.POST, instance=commande)
+        form = AchatForm(request.POST, instance=achat)
         if form.is_valid():
-            form.save()
-            if form.cleaned_data['statut'] == 'recue':
-                for article in commande.articleachat_set.all():
-                    stock, created = Stock.objects.get_or_create(produit=article.produit, defaults={'quantite': 0})
-                    stock.quantite += article.quantite
-                    stock.save()
-                    MouvementStock.objects.create(
-                        stock=stock,
-                        type_mouvement='entree',
-                        quantite=article.quantite,
-                        description=f"Réception commande {commande.id}"
-                    )
-            messages.success(request, 'Commande modifiée avec succès.')
+            ancien_quantite = achat.quantite
+            nouveau_achat = form.save()
+            # Mettre à jour le stock en fonction de la différence
+            stock = Stock.objects.get(produit=achat.produit)
+            difference = nouveau_achat.quantite - ancien_quantite
+            stock.quantite += difference
+            stock.save()
+            # Mettre à jour ou créer un mouvement de stock
+            MouvementStock.objects.create(
+                produit=achat.produit,
+                quantite=difference,
+                type_mouvement='entree' if difference > 0 else 'ajustement',
+                description=f"Modification achat {achat.id}"
+            )
             return redirect('liste_achats')
     else:
-        form = CommandeAchatForm(instance=commande)
-    return render(request, 'achats/formulaire_achat.html', {'form': form, 'titre': 'Modifier une Commande'})
+        form = AchatForm(instance=achat)
+    return render(request, 'achats/modifier_achat.html', {'form': form, 'achat': achat})

@@ -1,152 +1,67 @@
 from django import forms
-from django.db.models import F
-from produits.models import Categorie
-
-class FiltreRapportForm(forms.Form):
-    date_debut = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Date de début'
-    )
-    date_fin = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Date de fin'
-    )
+from django.db.models import Q
+from produits.models import Produit, Categorie
+from rapports.models import Stock, Vente
 
 class RapportStocksForm(forms.Form):
-    produit = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du produit'}),
-        label='Produit'
-    )
-    code_barres = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code-barres'}),
-        label='Code-barres'
-    )
-    categorie = forms.ModelChoiceField(
-        queryset=Categorie.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label='Catégorie'
-    )
-    seuil_critique = forms.BooleanField(
-        required=False,
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        label='Seuil critique atteint'
-    )
-    emplacement = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Emplacement'}),
-        label='Emplacement'
-    )
+    produit = forms.ModelChoiceField(queryset=Produit.objects.all(), required=False, label="Produit")
+    code_barres = forms.CharField(max_length=50, required=False, label="Code-barres")
+    categorie = forms.ModelChoiceField(queryset=Categorie.objects.all(), required=False, label="Catégorie")
+    emplacement = forms.CharField(max_length=100, required=False, label="Emplacement")
+    seuil_critique = forms.IntegerField(required=False, label="Seuil Critique")
 
     def filter_stocks(self, queryset):
-        if self.cleaned_data['produit']:
-            queryset = queryset.filter(produit__nom__icontains=self.cleaned_data['produit'])
-        if self.cleaned_data['code_barres']:
-            queryset = queryset.filter(produit__code_barres__icontains=self.cleaned_data['code_barres'])
-        if self.cleaned_data['categorie']:
-            queryset = queryset.filter(produit__categorie=self.cleaned_data['categorie'])
-        if self.cleaned_data['seuil_critique']:
-            queryset = queryset.filter(quantite__lte=F('seuil_critique'))
-        if self.cleaned_data['emplacement']:
-            queryset = queryset.filter(emplacement__icontains=self.cleaned_data['emplacement'])
+        if self.is_valid():
+            produit = self.cleaned_data.get('produit')
+            code_barres = self.cleaned_data.get('code_barres')
+            categorie = self.cleaned_data.get('categorie')
+            emplacement = self.cleaned_data.get('emplacement')
+            seuil_critique = self.cleaned_data.get('seuil_critique')
+
+            if produit:
+                queryset = queryset.filter(produit=produit)
+            if code_barres:
+                queryset = queryset.filter(produit__code_barres__icontains=code_barres)
+            if categorie:
+                queryset = queryset.filter(produit__categorie=categorie)
+            if emplacement:
+                queryset = queryset.filter(emplacement__icontains=emplacement)
+            if seuil_critique is not None:
+                queryset = queryset.filter(seuil_critique__lte=seuil_critique)
+
         return queryset
 
 class RapportVentesForm(forms.Form):
-    produit = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du produit'}),
-        label='Produit'
-    )
-    code_barres = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code-barres'}),
-        label='Code-barres'
-    )
-    categorie = forms.ModelChoiceField(
-        queryset=Categorie.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label='Catégorie'
-    )
-    date_debut = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Date de début'
-    )
-    date_fin = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Date de fin'
-    )
-    client = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du client'}),
-        label='Client'
-    )
+    produit = forms.ModelChoiceField(queryset=Produit.objects.all(), required=False, label="Produit")
+    code_barres = forms.CharField(max_length=50, required=False, label="Code-barres")
+    categorie = forms.ModelChoiceField(queryset=Categorie.objects.all(), required=False, label="Catégorie")
+    date_debut = forms.DateField(required=False, label="Date de début", widget=forms.DateInput(attrs={'type': 'date'}))
+    date_fin = forms.DateField(required=False, label="Date de fin", widget=forms.DateInput(attrs={'type': 'date'}))
+    client = forms.CharField(max_length=200, required=False, label="Client")
 
     def filter_ventes(self, queryset):
-        if self.cleaned_data['produit']:
-            queryset = queryset.filter(produit__nom__icontains=self.cleaned_data['produit'])
-        if self.cleaned_data['code_barres']:
-            queryset = queryset.filter(produit__code_barres__icontains=self.cleaned_data['code_barres'])
-        if self.cleaned_data['categorie']:
-            queryset = queryset.filter(produit__categorie=self.cleaned_data['categorie'])
-        if self.cleaned_data['date_debut']:
-            queryset = queryset.filter(date_vente__gte=self.cleaned_data['date_debut'])
-        if self.cleaned_data['date_fin']:
-            queryset = queryset.filter(date_vente__lte=self.cleaned_data['date_fin'])
-        if self.cleaned_data['client']:
-            queryset = queryset.filter(client__icontains=self.cleaned_data['client'])
+        if self.is_valid():
+            produit = self.cleaned_data.get('produit')
+            code_barres = self.cleaned_data.get('code_barres')
+            categorie = self.cleaned_data.get('categorie')
+            date_debut = self.cleaned_data.get('date_debut')
+            date_fin = self.cleaned_data.get('date_fin')
+            client = self.cleaned_data.get('client')
+
+            if produit:
+                queryset = queryset.filter(produit=produit)
+            if code_barres:
+                queryset = queryset.filter(produit__code_barres__icontains=code_barres)
+            if categorie:
+                queryset = queryset.filter(produit__categorie=categorie)
+            if date_debut:
+                queryset = queryset.filter(date_vente__gte=date_debut)
+            if date_fin:
+                queryset = queryset.filter(date_vente__lte=date_fin)
+            if client:
+                queryset = queryset.filter(client__icontains=client)
+
         return queryset
 
-class RapportFinancierForm(forms.Form):
-    produit = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du produit'}),
-        label='Produit'
-    )
-    code_barres = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code-barres'}),
-        label='Code-barres'
-    )
-    categorie = forms.ModelChoiceField(
-        queryset=Categorie.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label='Catégorie'
-    )
-    date_debut = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Date de début'
-    )
-    date_fin = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Date de fin'
-    )
-    client = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du client'}),
-        label='Client'
-    )
-
-    def filter_ventes(self, queryset):
-        if self.cleaned_data['produit']:
-            queryset = queryset.filter(produit__nom__icontains=self.cleaned_data['produit'])
-        if self.cleaned_data['code_barres']:
-            queryset = queryset.filter(produit__code_barres__icontains=self.cleaned_data['code_barres'])
-        if self.cleaned_data['categorie']:
-            queryset = queryset.filter(produit__categorie=self.cleaned_data['categorie'])
-        if self.cleaned_data['date_debut']:
-            queryset = queryset.filter(date_vente__gte=self.cleaned_data['date_debut'])
-        if self.cleaned_data['date_fin']:
-            queryset = queryset.filter(date_vente__lte=self.cleaned_data['date_fin'])
-        if self.cleaned_data['client']:
-            queryset = queryset.filter(client__icontains=self.cleaned_data['client'])
-        return queryset
+class RapportFinancierForm(RapportVentesForm):
+    pass

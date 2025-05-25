@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.forms import formset_factory
 from .models import Vente, ArticleVente
 from .forms import VenteForm, ArticleVenteForm
-from stocks.models import Stock, MouvementStock
+from stocks.models import MouvementStock  # Suppression de Stock ici
 from utilisateurs.models import JournalAction
+from rapports.models import Stock  # Stock est uniquement importé d'ici
 
 @login_required
 def liste_ventes(request):
@@ -58,7 +59,7 @@ def ajouter_vente(request):
                 
                 # Enregistrer le mouvement de stock
                 MouvementStock.objects.create(
-                    stock=stock,
+                    produit=article.produit,  # Ajustement ici : utiliser produit au lieu de stock
                     type_mouvement='sortie',
                     quantite=article.quantite,
                     description=f"Vente {vente.id}"
@@ -67,7 +68,7 @@ def ajouter_vente(request):
                 # Calculer le montant total
                 article_total = (article.prix_unitaire * article.quantite) * (1 - article.remise / 100)
                 vente.montant_total += article_total
-            
+            #
             # Appliquer la TVA
             vente.montant_total *= (1 + vente.tva / 100)
             vente.save()

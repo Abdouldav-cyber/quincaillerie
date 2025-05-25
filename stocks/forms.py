@@ -1,25 +1,20 @@
 from django import forms
-from .models import Stock, MouvementStock
+from .models import MouvementStock
+from produits.models import Produit
 
-class StockForm(forms.ModelForm):
-    class Meta:
-        model = Stock
-        fields = ['produit', 'quantite', 'seuil_critique', 'emplacement']
-        widgets = {
-            'produit': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'seuil_critique': forms.NumberInput(attrs={'class': 'form-control'}),
-            'emplacement': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+class StockForm(forms.Form):
+    produit = forms.ModelChoiceField(queryset=Produit.objects.all(), label="Produit")
+    quantite = forms.IntegerField(min_value=0, label="Quantité")
+    seuil_critique = forms.IntegerField(min_value=0, required=False, label="Seuil Critique")
+    emplacement = forms.CharField(max_length=100, required=False, label="Emplacement")
 
 class MouvementStockForm(forms.ModelForm):
     class Meta:
         model = MouvementStock
-        fields = ['produit', 'quantite', 'type_mouvement', 'description', 'raison']
+        fields = ['produit', 'quantite', 'type_mouvement', 'description']
         widgets = {
-            'produit': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'type_mouvement': forms.Select(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'raison': forms.TextInput(attrs={'class': 'form-control'}),
+            'produit': forms.Select(),
+            'quantite': forms.NumberInput(attrs={'min': 1}),
+            'type_mouvement': forms.Select(),
+            'description': forms.Textarea(attrs={'rows': 4}),
         }
