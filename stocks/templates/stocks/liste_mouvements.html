@@ -6,6 +6,19 @@
 {% block contenu %}
 <div class="container fade-in">
     <h2 class="mb-4">Mouvements de Stock</h2>
+    <div class="mb-3">
+        <a href="{% url 'stocks:ajouter_stock' %}" class="btn btn-primary">Ajouter un Stock</a>
+        <a href="{% url 'stocks:ajouter_mouvement' %}" class="btn btn-success">Ajouter un Mouvement</a>
+        <a href="{% url 'stocks:liste_stocks' %}" class="btn btn-info">Voir les Stocks</a>
+    </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <div class="table-responsive">

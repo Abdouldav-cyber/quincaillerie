@@ -1,20 +1,120 @@
 {% extends 'base.html' %}
-{% block titre %}{{ titre }}{% endblock %}
+{% load static %}
+
+{% block titre %}{{ titre }} - Quincaillerie{% endblock %}
+
 {% block contenu %}
-    <h2>{{ titre }}</h2>
-    {% if produit %}
-        <p>Confirmer la suppression de {{ produit.nom }} ?</p>
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Supprimer</button>
-            <a href="{% url 'liste_produits' %}" class="btn btn-secondary">Annuler</a>
-        </form>
-    {% else %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-            <a href="{% url 'liste_produits' %}" class="btn btn-secondary">Annuler</a>
-        </form>
+<div class="container fade-in">
+    <h2 class="mb-4">{{ titre }}</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
     {% endif %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {% if produit %}
+                <!-- Confirmation de suppression -->
+                <p>Confirmer la suppression de <strong>{{ produit.nom }}</strong> ?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger me-2">
+                        <i class="bi bi-trash me-2"></i>Supprimer
+                    </button>
+                    <a href="{% url 'produits:liste_produits' %}" class="btn btn-outline-secondary">Annuler</a>
+                </form>
+            {% else %}
+                <!-- Formulaire d'ajout ou de modification -->
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-6 animate-field">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ field.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="bi bi-save me-2"></i>Enregistrer
+                            </button>
+                            <a href="{% url 'produits:liste_produits' %}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', (e) => {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    const fields = document.querySelectorAll('.animate-field');
+    fields.forEach((field, index) => {
+        setTimeout(() => {
+            field.style.opacity = '1';
+            field.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+
+<style>
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-field {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.card {
+    border-radius: 10px;
+}
+.btn-primary, .btn-danger {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-primary {
+    background-color: #ff6f00;
+    border-color: #ff6f00;
+}
+.btn-primary:hover {
+    background-color: #e65c00;
+    border-color: #e65c00;
+    transform: translateY(-2px);
+}
+.btn-danger:hover {
+    transform: translateY(-2px);
+}
+.btn-outline-secondary {
+    transition: transform 0.2s ease;
+}
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+}
+</style>
 {% endblock %}

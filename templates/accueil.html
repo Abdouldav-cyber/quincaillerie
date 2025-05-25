@@ -1,13 +1,134 @@
-<!-- templates/accueil.html -->
 {% extends 'base.html' %}
+{% load static %}
+
 {% block titre %}Bienvenue - Quincaillerie{% endblock %}
+
 {% block contenu %}
-    <h1>Bienvenue sur Quincaillerie</h1>
-    <p>Gérez vos achats, ventes, stocks et plus encore.</p>
+<div class="container py-5 fade-in">
+    <!-- Section d'accueil -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">Bienvenue à la Quincaillerie</h1>
+        <p class="lead text-muted">Gérez vos achats, ventes, stocks et plus encore avec une solution complète et intuitive.</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg mt-3">Se connecter</a>
+        {% endif %}
+    </div>
+
+    <!-- Section des cartes d'action -->
+    <div class="row g-4">
+        {% if user.is_authenticated %}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cart-plus-fill display-5 text-success mb-3"></i>
+                        <h5 class="card-title">Achats</h5>
+                        <p class="card-text text-muted">Consultez et gérez vos achats.</p>
+                        <a href="{% url 'achats:liste_achats' %}" class="btn btn-outline-success mt-3">Voir les Achats</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box-seam-fill display-5 text-primary mb-3"></i>
+                        <h5 class="card-title">Produits</h5>
+                        <p class="card-text text-muted">Gérez votre catalogue de produits.</p>
+                        <a href="{% url 'produits:liste_produits' %}" class="btn btn-outline-primary mt-3">Voir les Produits</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-inbox-fill display-5 text-warning mb-3"></i>
+                        <h5 class="card-title">Stocks</h5>
+                        <p class="card-text text-muted">Suivez et mettez à jour vos stocks.</p>
+                        <a href="{% url 'stocks:liste_stocks' %}" class="btn btn-outline-warning mt-3">Voir les Stocks</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-arrow-left-right-fill display-5 text-info mb-3"></i>
+                        <h5 class="card-title">Mouvements</h5>
+                        <p class="card-text text-muted">Consultez les entrées et sorties.</p>
+                        <a href="{% url 'stocks:liste_mouvements' %}" class="btn btn-outline-info mt-3">Voir les Mouvements</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cart-check-fill display-5 text-danger mb-3"></i>
+                        <h5 class="card-title">Ventes</h5>
+                        <p class="card-text text-muted">Gérez vos ventes et paiements.</p>
+                        <a href="{% url 'ventes:liste_ventes' %}" class="btn btn-outline-danger mt-3">Voir les Ventes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-bar-chart-fill display-5 text-secondary mb-3"></i>
+                        <h5 class="card-title">Rapports</h5>
+                        <p class="card-text text-muted">Analysez vos données financières.</p>
+                        <a href="{% url 'rapports:rapport_financier' %}" class="btn btn-outline-secondary mt-3">Voir les Rapports</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Section des statistiques (placeholder) -->
     {% if user.is_authenticated %}
-        <a href="{% url 'liste_achats' %}" class="btn btn-primary">Voir les Achats</a>
-        <a href="{% url 'liste_produits' %}" class="btn btn-secondary">Voir les Produits</a>
-    {% else %}
-        <a href="{% url 'login' %}" class="btn btn-primary">Se connecter</a>
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">Statistiques Rapides</h5>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <h4 class="text-success">150</h4>
+                                <p class="text-muted">Produits en Stock</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="text-primary">75</h4>
+                                <p class="text-muted">Achats ce Mois</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="text-danger">200</h4>
+                                <p class="text-muted">Ventes ce Mois</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
+</div>
+
+<style>
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .card {
+        border-radius: 10px;
+        transition: transform 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .btn-outline-primary, .btn-outline-success, .btn-outline-warning, .btn-outline-info, .btn-outline-danger, .btn-outline-secondary {
+        border-width: 2px;
+    }
+    .btn-outline-primary:hover, .btn-outline-success:hover, .btn-outline-warning:hover, .btn-outline-info:hover, .btn-outline-danger:hover, .btn-outline-secondary:hover {
+        border-width: 2px;
+        opacity: 0.9;
+    }
+</style>
 {% endblock %}

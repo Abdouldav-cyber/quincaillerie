@@ -1,24 +1,41 @@
+<!-- C:\Users\ASUS\Desktop\ProjetsDjango\quincaillerie\quincaillerie\rapports\templates\rapports\rapport_ventes.html -->
 {% extends 'base.html' %}
 {% load static custom_filters %}
 
-{% block titre %}Rapport des Ventes{% endblock %}
+{% block titre %}Rapport des Ventes - Quincaillerie{% endblock %}
 
 {% block contenu %}
 <div class="container fade-in">
     <h2 class="mb-4">Rapport des Ventes</h2>
 
-    <!-- Formulaire de filtrage -->
+    <!-- Formulaire de filtrage et bouton d'exportation -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3">
-                {{ form.as_p }}
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">Filtrer</button>
-                    <a href="{% url 'exporter_ventes_csv' %}" class="btn btn-outline-secondary">Exporter en CSV</a>
-                </div>
-            </form>
+            <div class="d-flex justify-content-between align-items-center">
+                <form method="get" class="row g-3 col-md-8">
+                    {{ form.as_p }}
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-filter me-2"></i>Filtrer
+                        </button>
+                    </div>
+                </form>
+                <a href="{% url 'rapports:exporter_ventes_csv' %}" class="btn btn-success">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Exporter en CSV
+                </a>
+            </div>
         </div>
     </div>
+
+    <!-- Gestion des messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <!-- Carte récapitulative -->
     <div class="row mb-4">
@@ -57,7 +74,13 @@
                             <td>{{ vente.produit.get_unite_display }}</td>
                             <td>{{ vente.quantite }}</td>
                             <td>{{ vente.prix_unitaire|floatformat:2 }} FCFA</td>
-                            <td>{{ vente.client|default:"-" }}</td>
+                            <td>
+                                {% if vente.client %}
+                                    {{ vente.client.nom }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
                             <td>{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
                             <td>{{ vente.quantite|multiply:vente.prix_unitaire|floatformat:2 }} FCFA</td>
                         </tr>
@@ -74,9 +97,44 @@
 </div>
 
 <style>
-    .card { border-radius: 10px; }
-    .table-hover tbody tr:hover { background-color: rgba(26, 60, 109, 0.05); }
-    .btn-primary { background-color: #1a3c6d; border-color: #1a3c6d; }
-    .btn-primary:hover { background-color: #ff6f00; border-color: #ff6f00; }
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.card {
+    border-radius: 10px;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(26, 60, 109, 0.05);
+}
+.btn-primary {
+    background-color: #1a3c6d;
+    border-color: #1a3c6d;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-primary:hover {
+    background-color: #ff6f00;
+    border-color: #ff6f00;
+    transform: translateY(-2px);
+}
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-2px);
+}
+.btn-outline-secondary {
+    transition: transform 0.2s ease;
+}
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+}
 </style>
 {% endblock %}

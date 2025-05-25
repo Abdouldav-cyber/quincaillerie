@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block titre %}{{ titre }} - Quincaillerie{% endblock %}
+{% block titre %}Modifier le Stock - {{ stock.produit.nom }}{% endblock %}
 
 {% block contenu %}
 <div class="container fade-in">
-    <h2 class="mb-4">{{ titre }}</h2>
+    <h2 class="mb-4">Modifier le Stock - {{ stock.produit.nom }}</h2>
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -37,7 +37,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-save me-2"></i>Enregistrer
                         </button>
-                        <a href="{% url 'clients:liste_clients' %}" class="btn btn-outline-secondary">Annuler</a>
+                        <a href="{% url 'stocks:liste_stocks' %}" class="btn btn-outline-secondary">Annuler</a>
                     </div>
                 </div>
             </form>
@@ -67,34 +67,32 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <style>
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
 .animate-field {
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
 .card {
     border-radius: 10px;
 }
+
 .btn-primary {
     background-color: #ff6f00;
     border-color: #ff6f00;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
+
 .btn-primary:hover {
     background-color: #e65c00;
     border-color: #e65c00;
     transform: translateY(-2px);
 }
+
 .btn-outline-secondary {
     transition: transform 0.2s ease;
 }
+
 .btn-outline-secondary:hover {
     transform: translateY(-2px);
 }
