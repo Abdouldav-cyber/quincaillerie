@@ -1,0 +1,35 @@
+<!-- C:\Users\ASUS\Desktop\ProjetsDjango\quincaillerie\quincaillerie\ventes\templates\ventes\voir_ticket_vente.html -->
+{% extends 'base.html' %}
+{% block titre %}Ticket de Vente {{ vente.id }}{% endblock %}
+{% block contenu %}
+    <h2>Ticket de Vente #{{ vente.id }}</h2>
+    <p><strong>Date :</strong> {{ vente.date_vente|date:"d/m/Y H:i" }}</p>
+    <p><strong>Client :</strong> {{ vente.client.nom|default:"Anonyme" }}</p>
+    <p><strong>Utilisateur :</strong> {{ vente.utilisateur.username }}</p>
+    <p><strong>Crédit :</strong> {{ vente.est_credit|yesno:"Oui,Non" }}</p>
+    <p><strong>TVA :</strong> {{ vente.tva }}%</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Prix Unitaire</th>
+                <th>Remise</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in vente.articlevente_set.all %}
+                <tr>
+                    <td>{{ article.produit.nom }}</td>
+                    <td>{{ article.quantite }}</td>
+                    <td>{{ article.prix_unitaire }} FCFA</td>
+                    <td>{{ article.remise }}%</td>
+                    <td>{{ article.prix_unitaire|multiply:article.quantite|multiply:(1|subtract:article.remise|divide:100) }} FCFA</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><strong>Montant Total :</strong> {{ vente.montant_total }} FCFA</p>
+    <a href="{% url 'ventes:liste_ventes' %}" class="btn btn-secondary">Retour</a>
+{% endblock %}

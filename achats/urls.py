@@ -1,3 +1,4 @@
+# C:\Users\ASUS\Desktop\ProjetsDjango\quincaillerie\quincaillerie\achats\urls.py
 from django.urls import path
 from . import views
 app_name = 'achats'

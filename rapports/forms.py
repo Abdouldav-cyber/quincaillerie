@@ -1,3 +1,4 @@
+# C:\Users\ASUS\Desktop\ProjetsDjango\quincaillerie\quincaillerie\rapports\forms.py
 from django import forms
 from django.db.models import Q
 from produits.models import Produit, Categorie
@@ -59,7 +60,7 @@ class RapportVentesForm(forms.Form):
             if date_fin:
                 queryset = queryset.filter(date_vente__lte=date_fin)
             if client:
-                queryset = queryset.filter(client__icontains=client)
+                queryset = queryset.filter(client__nom__icontains=client)  # Correction ici
 
         return queryset
 

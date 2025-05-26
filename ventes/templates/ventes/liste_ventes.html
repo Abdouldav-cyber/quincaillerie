@@ -1,8 +1,9 @@
+<!-- C:\Users\ASUS\Desktop\ProjetsDjango\quincaillerie\quincaillerie\ventes\templates\ventes\liste_ventes.html -->
 {% extends 'base.html' %}
 {% block titre %}Liste des Ventes{% endblock %}
 {% block contenu %}
     <h2>Liste des Ventes</h2>
-    <a href="{% url 'ajouter_vente' %}" class="btn btn-primary mb-3">Nouvelle Vente</a>
+    <a href="{% url 'ventes:ajouter_vente' %}" class="btn btn-primary mb-3">Nouvelle Vente</a>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -21,7 +22,7 @@
                     <td>{{ vente.montant_total }} FCFA</td>
                     <td>{{ vente.est_credit|yesno:"Oui,Non" }}</td>
                     <td>
-                        <a href="{% url 'voir_ticket_vente' vente.pk %}" class="btn btn-sm btn-info">Voir Ticket</a>
+                        <a href="{% url 'ventes:voir_ticket_vente' vente.pk %}" class="btn btn-sm btn-info">Voir Ticket</a>
                     </td>
                 </tr>
             {% empty %}

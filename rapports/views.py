@@ -6,6 +6,7 @@ from django.db.models import Sum, F
 import csv
 from datetime import datetime
 from .models import Stock, Vente, Depense
+from ventes.models import ArticleVente  # Importation corrigée
 from .forms import RapportStocksForm, RapportVentesForm, RapportFinancierForm
 
 @login_required
@@ -100,23 +101,21 @@ def exporter_ventes_csv(request):
 @login_required
 def rapport_financier(request):
     form = RapportFinancierForm(request.GET or None)
-    ventes = Vente.objects.all()
+    articles = ArticleVente.objects.all()  # Plus besoin d'importer dans la fonction
 
     if form.is_valid():
-        ventes = form.filter_ventes(ventes)
+        articles = form.filter_ventes(articles)
 
-    total_ventes = ventes.aggregate(
+    total_ventes = articles.aggregate(
         total=Sum(F('quantite') * F('prix_unitaire'))
     )['total'] or 0
 
-    # Remplacez par un modèle Depense si disponible
-    from .models import Depense  # Hypothèse : modèle Depense
     total_depenses = Depense.objects.aggregate(total=Sum('montant'))['total'] or 0
     benefice = total_ventes - total_depenses
 
     return render(request, 'rapports/rapport_financier.html', {
         'form': form,
-        'ventes': ventes,
+        'ventes': articles,
         'total_ventes': total_ventes,
         'total_depenses': total_depenses,
         'benefice': benefice,
@@ -130,26 +129,24 @@ def exporter_financier_csv(request):
     writer = csv.writer(response)
     writer.writerow(['Type', 'Produit', 'Code-barres', 'Unité', 'Quantité', 'Prix Unitaire', 'Client', 'Date', 'Montant (FCFA)'])
 
-    ventes = Vente.objects.all()
+    articles = ArticleVente.objects.all()  # Plus besoin d'importer dans la fonction
     form = RapportFinancierForm(request.GET or None)
     if form.is_valid():
-        ventes = form.filter_ventes(ventes)
+        articles = form.filter_ventes(articles)
 
-    for vente in ventes:
+    for article in articles:
         writer.writerow([
             'Vente',
-            vente.produit.nom,
-            vente.produit.code_barres,
-            vente.produit.get_unite_display(),
-            vente.quantite,
-            vente.prix_unitaire,
-            vente.client.nom if vente.client else '-',
-            vente.date_vente.strftime('%d/%m/%Y %H:%M'),
-            vente.quantite * vente.prix_unitaire
+            article.produit.nom,
+            article.produit.code_barres,
+            article.produit.get_unite_display(),
+            article.quantite,
+            article.prix_unitaire,
+            article.vente.client.nom if article.vente.client else '-',
+            article.vente.date_vente.strftime('%d/%m/%Y %H:%M'),
+            article.quantite * article.prix_unitaire
         ])
 
-    # Ajouter les dépenses si le modèle existe
-    from .models import Depense  # Hypothèse : modèle Depense
     depenses = Depense.objects.all()
     for depense in depenses:
         writer.writerow([
@@ -164,7 +161,7 @@ def exporter_financier_csv(request):
             depense.montant
         ])
 
-    total_ventes = ventes.aggregate(
+    total_ventes = articles.aggregate(
         total=Sum(F('quantite') * F('prix_unitaire'))
     )['total'] or 0
     total_depenses = Depense.objects.aggregate(total=Sum('montant'))['total'] or 0
